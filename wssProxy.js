@@ -10,12 +10,9 @@ let forwardPort = 8080;
 let certificateFile = "cert.pem";
 let privateKeyFile = "key.pem";
 
-
-
-
 function originIsAllowed(origin){
-	// Could Put logic to control accepted connections here
-	// For now all connections accepted
+	// Could Put logic to control accepted connections
+	// based on origin. For now all connections accepted
 	return true;
 }
 
@@ -60,29 +57,24 @@ process.argv.forEach(function (val, index, array) {
 });
 
 
-//Server --------
-
 try{
 
-	debugger;
-	var privateKey = fs.readFileSync(privateKeyFile).toString();
-	var certificate = fs.readFileSync(certificateFile).toString();
-
-//
+	let privateKey = fs.readFileSync(privateKeyFile).toString();
+	let certificate = fs.readFileSync(certificateFile).toString();
 
 	const options = {
 		key: privateKey,
 		cert: certificate
 	};
 
-	var server = https.createServer(options, (req, res) => {
+	let server = https.createServer(options, (req, res) => {
 		res.writeHead(200);
 		res.end('hello world\n');
 	});
 
 	server.listen(listenPort);
 
-	var wsServer = new WebSocketServer({
+	let wsServer = new WebSocketServer({
 		httpServer: server,
 		autoAcceptConnections: false
 	});
@@ -97,12 +89,12 @@ try{
 		}
 		else
 		{
-			var wsServerConnection = request.accept(null, request.origin);
-			var wsClientConnection = new WebSocketClient();
+			let wsServerConnection = request.accept(null, request.origin);
+			let wsClientConnection = new WebSocketClient();
 
 			wsClientConnection.on('connectFailed', function(error){
 				console.log("Connect Error: " + error.toString());
-			})
+			});
 
 			wsClientConnection.on('connect', function(connection) {
 				console.log('Websocket Client Connected');
@@ -110,39 +102,30 @@ try{
 				connection.on('message', function(message) {
 					if (message.type === 'utf8'){
 						wsServerConnection.sendUTF(message.utf8Data);
-
 					}
 					else
 					{
 						console.log("non utf8 Data received, not forwarding");
 					}
 				});
-
-
-
 			});
 
 			wsClientConnection.connect('ws://'+ forwardAddress +':' + forwardPort+ '/');
-
 
 			wsServerConnection.on('message', function(message){
 				console.log("MESSAGE received");
 
 				if (message.type === 'utf8'){
-					//	console.log("Received Message: " + message.utf8Data);
-
 					if (wsClientConnection.connection){
-						console.log("Sending data to conspiron");
+						console.log("Sending data to forward");
 						wsClientConnection.connection.sendUTF(message.utf8Data);
 					}else
 					{
 						console.log("waiting to send data to conspiron");
 						wsClientConnection.on('connect', function(connection) {
 							console.log("Connected and sending" + message.utf8Data);
-
 							connection.sendUTF(message.utf8Data);
 						});
-
 					}
 				}
 				else if (message.type === 'binary') {
@@ -154,17 +137,11 @@ try{
 				}
 			});
 
-
 			wsServerConnection.on('close', function(reasonCode, description){
 				console.log((new Date()) + ' Peer ' + wsServerConnection.remoteAddress + ' disconnected.');
 				wsClientConnection.connection.close();
 			});
-
-
-
 		}
-
-
 	});
 
 }catch(error)
