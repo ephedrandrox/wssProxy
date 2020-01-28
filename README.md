@@ -1,5 +1,5 @@
 # wssProxy
-##Secure Websocket Proxy Script
+## Secure Websocket Proxy Script
 
 Accepts secure WebSocket connections and passes them to an insecure WebSocket. 
 
@@ -13,18 +13,13 @@ Then start the server using
 
 This starts the proxy with the following settings:
 
-listenPort=443
-
-listenAddress=0.0.0.0 
-
-forwardAddress=localhost 
-
-forwardPort=8080 
-
-certificateFile="cert.pem" 
-
+listenPort=443  
+listenAddress=0.0.0.0   
+forwardAddress=localhost   
+forwardPort=8080   
+certificateFile=cert.pem  
 privateKeyFile=key.pem
 
 You can use the following command to change these settings:
 
-```npm start listenPort=443 listenAddress=0.0.0.0 forwardAddress=localhost forwardPort=8080 certificateFile="cert.pem" privateKeyFile=key.pem```
+```npm start listenPort=443 listenAddress=0.0.0.0 forwardAddress=localhost forwardPort=8080 certificateFile=cert.pem privateKeyFile=key.pem```
